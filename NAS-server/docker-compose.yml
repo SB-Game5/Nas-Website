@@ -1,0 +1,61 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: NAS-app
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    depends_on:
+      - db
+      - mailpit
+    networks:
+      - NAS-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: NAS-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - NAS-network
+
+  db:
+    image: mysql:8.0
+    container_name: NAS-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: NAS_dev
+      MYSQL_USER: NAS_user
+      MYSQL_PASSWORD: NAS_2025
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - NAS-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: NAS-phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - NAS-network
+
+volumes:
+  mysql-data:
+
+networks:
+  NAS-network:
+    driver: bridge
