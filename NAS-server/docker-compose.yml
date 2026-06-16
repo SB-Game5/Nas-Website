@@ -2,20 +2,22 @@ services:
   app:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: NAS-app
+    restart: always
     working_dir: /var/www
     volumes:
       - .:/var/www
+      - /var/www/node_modules
     depends_on:
       - db
-      - mailpit
     networks:
       - NAS-network
 
   nginx:
     image: nginx:alpine
     container_name: NAS-nginx
+    restart: always
     ports:
       - "8000:80"
     volumes:
@@ -29,18 +31,22 @@ services:
   db:
     image: mysql:8.0
     container_name: NAS-mysql
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: NAS_dev
+      MYSQL_DATABASE: NAS-B
       MYSQL_USER: NAS_user
       MYSQL_PASSWORD: NAS_2025
+    ports:
+      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - NAS-network
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:5.2.1-apache
+    restart: always
     container_name: NAS-phpmyadmin
     environment:
       PMA_HOST: db
@@ -48,6 +54,20 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - NAS-network
+
+  python:
+    container_name: NAS-python
+    build: ../../NAS-Code
+    restart: always
+    volumes:
+      - /home/swann/NAS-Code
+      - /ServeurSB:/ServeurSB
+      - ../../NAS-Code:/home/swann/NAS-Code
+      - ../../NAS-Code:/app
     depends_on:
       - db
     networks:
