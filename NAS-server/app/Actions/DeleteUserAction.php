@@ -13,7 +13,6 @@ class DeleteUserAction
         $host = env('NAS_SSH_HOST'); // Register Host
         $user = env('NAS_SSH_USER'); // Register User
         $pass = env('NAS_SSH_PASS'); // Register Password
-
         // SSH connection
         $ssh = new SSH2($host);
         if (!$ssh->login($user, $pass)) {

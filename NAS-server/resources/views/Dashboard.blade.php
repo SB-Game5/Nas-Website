@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NAS-B</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.toggle('hidden');
+        }
+    }
+</script>
     <h1>
     <button type="button" onclick="toggleModal('my-modal-logout')" class="bg-red-600 hover:bg-purple-700">
            Déconnexion
@@ -30,19 +38,45 @@
     <div class="flex-1 bg-gray-800 rounded-xl shadow-lg border border-gray-700 flex flex-col overflow-hidden">
         
         @php
-            // On récupère l'onglet actif depuis l'URL (?tab=...), par défaut 'overview'
-            $activeTab = request('tab', 'users');
+            // 1. On appelle d'abord l'action pour charger les rôles depuis le NAS
+            $action = app(App\Actions\ListUserAction::class);
+            $isCurrentUserAdmin = false;
             
-            // Liste de tes 11 onglets (Clé => Libellé)
+            try {
+                $users = $action->execute();
+                
+                // 2. On vérifie si l'utilisateur connecté est admin du NAS
+                $currentUser = Auth::user();
+                if ($currentUser) {
+                    foreach ($users as $u) {
+                        if (isset($u['username']) && $u['username'] === $currentUser->username && isset($u['is_admin']) && $u['is_admin']) {
+                            $isCurrentUserAdmin = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                $users = [];
+                $errorMessage = $e->getMessage();
+            }
+
+            // 3. Onglets de base visibles par tout le monde
             $tabs = [
                 'files-info' => 'Informations ',
                 'history' => 'Historique',
                 'dm' => 'Messages',
-                'files-perm' => 'Permissions',
-                'users' => 'Utilisateurs',
-                'site-info' => 'Autres',
-
             ];
+
+            // 4. Si l'utilisateur est admin, on ajoute les onglets d'administration
+            if ($isCurrentUserAdmin) {
+                $tabs['files-perm'] = 'Permissions';
+                $tabs['users']      = 'Utilisateurs';
+                $tabs['site-info']  = 'Autres';
+            }
+
+            // 5. Définir l'onglet actif (si l'utilisateur tape un onglet admin alors qu'il ne l'est pas, on le remet sur 'files-info')
+            $requestedTab = request('tab', $isCurrentUserAdmin ? 'users' : 'files-info');
+            $activeTab = array_key_exists($requestedTab, $tabs) ? $requestedTab : 'files-info';
         @endphp
 
         <div class="flex bg-gray-850 border-b border-gray-700 overflow-x-auto whitespace-nowrap scrollbar-none">
@@ -63,11 +97,9 @@
                 @case('files-info')
                     @include('Onglets.FilesInfo')
                     @break
-
                 @case('history')
                     @include('Onglets.History')
                     @break
-
                 @case('dm')
                     @include('Onglets.DM')
                     @break

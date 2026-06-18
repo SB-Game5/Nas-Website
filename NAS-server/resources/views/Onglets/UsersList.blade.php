@@ -1,12 +1,12 @@
 <div>
-<button type="button" onclick="toggleModal('my-modal')" class="bg-green-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition">
+<button type="button" onclick="toggleModal('my-modal')" class="bg-green-600 hover:bg-purple-700 text-white px-4 py-2  transition">
     Ajouter un nouvel utilisateur
 </button>
 <h1> </h1>
 
 <div id="my-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
     
-    <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg shadow-2xl relative mx-4">
+    <div class="bg-gray-900 border border-gray-700 p-6 w-full max-w-lg shadow-2xl relative mx-4">
 
         <div class="text-sm text-gray-300 space-y-4">
            @include('Onglets.Users.AddUser')
@@ -24,7 +24,7 @@
 </script>
 <div id="my-modal-del" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
     
-    <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg shadow-2xl relative mx-4">
+    <div class="bg-gray-900 border border-gray-700 p-6 w-full max-w-lg shadow-2xl relative mx-4">
         <div class="text-sm text-gray-300 space-y-4">
            @include('Onglets.Users.DeleteUser')
         </div>
@@ -59,24 +59,24 @@
 
 <div class="w-full space-y-4">
 
-    @php
-        $action = app(App\Actions\ListUserAction::class);
-        
-        try {
-            $users = $action->execute();
-        } catch (\Exception $e) {
-            $users = [];
-            $errorMessage = $e->getMessage();
-        }
-    @endphp
+@php
+    $action = app(App\Actions\ListUserAction::class);
+    
+    try {
+        $users = $action->execute();
+    } catch (\Exception $e) {
+        $users = [];
+        $errorMessage = $e->getMessage();
+    }
+@endphp
 
     {{-- En cas d'erreur SSH --}}
     @if(isset($errorMessage))
-        <div class="p-4 bg-red-900/40 border border-red-500 text-red-200 rounded-lg text-sm">
+        <div class="p-4 bg-red-900/40 border border-red-500 text-red-200 text-sm">
             {{ $errorMessage }}
         </div>
     @endif
-    <div class="overflow-x-auto rounded-xl border border-gray-800 shadow-md">
+    <div class="overflow-x-auto border border-gray-800 shadow-md">
         <table class="w-full text-sm text-left text-gray-300 bg-gray-900">
             <thead class="text-xs uppercase bg-gray-800 text-gray-400 border-b border-gray-700">
             </thead>
@@ -85,11 +85,20 @@
                 @forelse($users as $user)
                     <tr class="hover:bg-gray-800/50 transition">
                         <td class="px-6 py-4 font-medium text-gray-100">
-                            {{ $user }}
+                            {{ $user['username'] }}
                         </td>
-                        <td class="px-6 py-4"></td>
                         <td class="px-6 py-4">
-                           <button type="button" onclick="getusername(this, 'my-modal-del')" class="bg-red-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition">
+                            @if($user['is_admin'])
+                                <span class="bg-green-600 text-white px-2 py-1 text-xs">
+                                    Administrateur
+                                </span>
+                            @else
+
+                    
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                           <button type="button" onclick="getusername(this, 'my-modal-del')" class="bg-red-600 hover:bg-purple-700 text-white px-4 py-2 transition">
                                 Supprimer
                             </button>
                         </td>

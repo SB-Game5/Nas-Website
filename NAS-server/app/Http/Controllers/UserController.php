@@ -61,13 +61,24 @@ class UserController extends Controller
                 ->withErrors(['username' => 'Identifiants incorrects'])
                 ->withInput();
         }
+        try {
+            $users = $listUserAction->execute();
+            
+            // ÉTAPE CRUCIALE : On extrait uniquement les pseudos du tableau multidimensionnel
+            $usernamesOnNas = array_column($users, 'username');
 
-        $users = $listUserAction->execute();
-        if (! in_array($credentials['username'], $users, true)) {
+            if (! in_array($credentials['username'], $usernamesOnNas, true)) {
+                Auth::logout();
+
+                return back()
+                    ->withErrors(['username' => 'Ce compte n\'est pas reconnu sur le NAS'])
+                    ->withInput();
+            }
+        } catch (\Exception $e) {
+            // Si la connexion SSH échoue pendant le login, on déconnecte par sécurité
             Auth::logout();
-
             return back()
-                ->withErrors(['username' => 'Ce compte n\'est pas reconnu sur le NAS'])
+                ->withErrors(['username' => 'Erreur de communication avec le NAS : ' . $e->getMessage()])
                 ->withInput();
         }
 
