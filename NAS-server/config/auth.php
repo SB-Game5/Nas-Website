@@ -63,7 +63,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            'driver' => 'samba',
             'model' => env('AUTH_MODEL', User::class),
         ],
 

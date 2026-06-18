@@ -3,7 +3,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddUserRequest extends FormRequest
+class DeleteUserRequest extends FormRequest
 {
     protected $redirectRoute = 'dashboard';
     public function authorize(): bool
@@ -15,7 +15,6 @@ class AddUserRequest extends FormRequest
     {
         return [
             'username' => 'required|string|min:4|max:50',
-            'password' => 'required|string|min:4',
         ];
     }
 }

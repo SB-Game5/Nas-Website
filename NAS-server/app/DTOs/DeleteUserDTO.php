@@ -1,20 +1,18 @@
 <?php
 namespace App\DTOs;
 
-use App\Http\Requests\AddUserRequest;
+use App\Http\Requests\DeleteUserRequest;
 
-class UserDTO
+class DeleteUserDTO
 {
     public function __construct(
         public readonly string $username,
-        public readonly string $password,
     ) {}
 
-    public static function fromRequest(AddUserRequest $request): self // create DTO
+    public static function fromRequest(DeleteUserRequest $request): self // create DTO
     {
         return new self(
             username: (string) $request->input('username'),
-            password: (string) $request->input('password')
         );
     }
 
@@ -23,7 +21,6 @@ class UserDTO
     {
         return [
             'username' => $this->username,
-            'password' => $this->password,
         ];
     }
 }
