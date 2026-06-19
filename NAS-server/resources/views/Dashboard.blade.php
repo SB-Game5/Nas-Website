@@ -15,14 +15,19 @@
 </script>
     
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col p-4 gap-4">
+<body class="bg-black text-gray min-h-screen flex flex-col p-4 gap-4">
+    @php
+    $currentUser = Auth::user();
+@endphp
 <div>
-    <button type="button" onclick="toggleModal('my-modal-logout')" class="bg-red-600 hover:bg-purple-700">
+    <h1 class="text-white"> Bien le bonjour !</h1>
+    <h2 class="text-white"> Bienvenue sur le NAS-B, <span class="text-blue">{{ $currentUser->name}}</span>  !</h2>
+    <button type="button" onclick="toggleModal('my-modal-logout')" class="text-white bg-red-600 hover:bg-purple-700">
            Déconnexion
     </button>
     <div id="my-modal-logout" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
     
-        <div class="bg-gray-900 border border-gray-700 -xl p-6 w-full max-w-lg shadow-2xl relative mx-4">
+        <div class="bg-gray-900 border border-white -xl p-6 w-full max-w-lg  relative mx-4 ">
             <div class="text-sm text-gray-300 space-y-4">
                 @include('logout')
             </div>
@@ -31,7 +36,7 @@
 </div>
 <!-- // Put the two square side by side, below the first div -->
 <div class="flex gap-4 flex-1"> 
-    <div class="flex-1 bg-gray-800 border border-gray-700 -xl p-6 overflow-y-auto shadow-lg">
+    <div class="flex-1 bg-gray-800 border border-gray-700 -xl p-6 overflow-y-auto ">
         <div >
                         @include('Onglets.FilesTree')
                     </div>
@@ -61,14 +66,13 @@
                 $errorMessage = $e->getMessage();
             }
 
-            // 3. Onglets de base visibles par tout le monde
             $tabs = [
-                'files-info' => 'Informations ',
                 'history' => 'Historique',
                 'dm' => 'Messages',
             ];
-
-            // 4. Si l'utilisateur est admin, on ajoute les onglets d'administration
+            if (!$isCurrentUserAdmin) {
+                $tabs['files-info'] = 'Informations ';
+            }
             if ($isCurrentUserAdmin) {
                 $tabs['files-perm'] = 'Permissions';
                 $tabs['users']      = 'Utilisateurs';

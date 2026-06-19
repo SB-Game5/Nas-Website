@@ -1,4 +1,4 @@
-<div class="text-sm text-gray-300 space-y-4">
+<div class="text-sm text-white space-y-4">
     <form action="{{ route('logout') }}" method="POST" class="inline">
         @csrf
         <p>

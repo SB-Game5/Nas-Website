@@ -64,9 +64,9 @@ var currentSelectedPath= localStorage.getItem('nas_selected_path') || null; //st
         document.getElementById('selected-path-display').textContent = currentSelectedPath;
         
 
-        console.log("Variable mise à jour : ", currentSelectedPath);
         const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('tab', 'files-info'); 
+        const currentTab = urlParams.get('tab') || 'files-info';
+        urlParams.set('tab', currentTab); 
         urlParams.set('selected_path', currentSelectedPath); 
         
         window.location.search = urlParams.toString();
